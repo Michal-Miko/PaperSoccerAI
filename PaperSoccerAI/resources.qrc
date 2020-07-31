@@ -3,5 +3,6 @@
         <file>res/empty_field.png</file>
         <file>res/taken_field.png</file>
         <file>res/edge_field.png</file>
+        <file>res/edge_field2.png</file>
     </qresource>
 </RCC>

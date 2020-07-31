@@ -25,7 +25,7 @@ PSGui::PSGui(QObject *parent, PSGame *game)
     else if (node->getType() == node_type::empty)
       current = new QGraphicsPixmapItem(QPixmap(":/img/res/empty_field.png"));
     else
-      current = new QGraphicsPixmapItem(QPixmap(":/img/res/edge_field.png"));
+      current = new QGraphicsPixmapItem(QPixmap(":/img/res/edge_field2.png"));
 
     // Set field position, scale
     QPointF pos(offset + i % PSBoard::width * separation,
@@ -87,6 +87,12 @@ void PSGui::updateUI() {
       }
     }
   }
+
+  // Update field texture
+  auto ball_node = game->getBoard()->getBall_node();
+  auto ball_index = ball_node->getNode_pos().toIndex(PSBoard::width);
+  if (ball_node->getType() != node_type::edge)
+    fields[ball_index]->setPixmap(QPixmap(":/img/res/taken_field.png"));
 }
 
 void PSGui::connectUI(QLabel *turn_label) {

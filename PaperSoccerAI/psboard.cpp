@@ -81,7 +81,8 @@ void PSBoard::resetBoard() {
 void PSBoard::moveBall(node_dir dir) {
   ball_node->setEdge(dir);
   ball_node = ball_node->getNeighbour(dir);
-  ball_node->setType(node_type::taken);
+  if (ball_node->getType() == node_type::empty)
+    ball_node->setType(node_type::taken);
 }
 
 bool PSBoard::ballNeighbour(PSNode *node) {
