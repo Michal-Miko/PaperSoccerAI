@@ -2,7 +2,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++11
+CONFIG += c++17
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -17,11 +17,22 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    scene.cpp \
+    point.cpp \
+    psboard.cpp \
+    psgame.cpp \
+    psgui.cpp \
+    psnode.cpp \
+    psplayer.cpp \
     widget.cpp
 
 HEADERS += \
-    scene.h \
+    point.h \
+    psboard.h \
+    psgame.h \
+    psgui.h \
+    psnode.h \
+    psplayer.h \
+    utilities.h \
     widget.h
 
 FORMS += \

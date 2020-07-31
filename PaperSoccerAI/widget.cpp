@@ -1,48 +1,24 @@
 #include "widget.h"
-#include "./ui_widget.h"
-#include <random>
+#include "psplayer.h"
+#include "ui_widget.h"
 
-Widget::Widget(QWidget *parent)
-    : QWidget(parent),
-      ui(new Ui::Widget)
-{
-    ui->setupUi(this);
+Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget) {
+  ui->setupUi(this);
 
+  PSGame *game = new PSGame();
+  PSGui *scene = new PSGui(this, game);
+  scene->setSceneRect(0, 0, 450, 650);
+  ui->graphicsView->setScene(scene);
 
-    auto line_pen = QPen(Qt::white);
-    line_pen.setWidth(3);
+  // Add players to combo boxes
+  ui->p1combo->addItem(PSPlayer::name);
+  ui->p2combo->addItem(PSPlayer::name);
 
-    scene = new Scene(this);
-    scene->setSceneRect(0,0,450,650);
-    scene->addLine(QLine(0,325,450,325),line_pen);
-    scene->addLine(QLine(225,0,225,650),line_pen);
+  // Set default players
+  game->setP1(new PSPlayer(game->getBoard()));
+  game->setP2(new PSPlayer(game->getBoard()));
 
-    std::default_random_engine generator;
-    std::uniform_int_distribution<int> distribution(0,1);
-
-
-    auto fcount = 13*9;
-    auto separation = 50;
-    QGraphicsPixmapItem **fields = new QGraphicsPixmapItem*[fcount];
-    for(int i=0;i<fcount;i++){
-        if(distribution(generator))
-                fields[i] = new QGraphicsPixmapItem(QPixmap(":/img/res/taken_field.png"));
-        else
-            fields[i] = new QGraphicsPixmapItem(QPixmap(":/img/res/empty_field.png"));
-        fields[i]->setPos(QPointF(25-8+ i%9 * separation, 25-8+ i/9 * separation));
-        fields[i]->setScale(0.5);
-        scene->addItem(fields[i]);
-    }
-
-
-    // Board <- object, drawable item group
-
-
-    ui->graphicsView->setScene(scene);
+  scene->connectUI(ui->turnlabel);
 }
 
-Widget::~Widget()
-{
-    delete ui;
-}
-
+Widget::~Widget() { delete ui; }
