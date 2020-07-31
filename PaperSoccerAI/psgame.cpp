@@ -24,7 +24,11 @@ void PSGame::clickedOnNode(uint index) {
     board->nextTurn();
 }
 
-void PSGame::reset() { board->resetBoard(); }
+void PSGame::reset() {
+  board->resetBoard();
+  p1->reset();
+  p2->reset();
+}
 
 void PSGame::undo() {
   if (board->getTurn() == player::p1 && p1->name == "Player")

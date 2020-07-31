@@ -31,3 +31,8 @@ void PSPlayer::undoInput() {
     board->undo();
   }
 }
+
+void PSPlayer::reset() {
+  move_complete = false;
+  move.clear();
+}
