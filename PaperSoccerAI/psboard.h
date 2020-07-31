@@ -18,6 +18,7 @@ public:
   bool ballNeighbour(PSNode *node);
   bool gameOver();
   void nextTurn();
+  void undo();
 
   static const int width;
   static const int height;
@@ -34,6 +35,7 @@ public:
   PSNode *getBall_node() const;
 
 private:
+  std::vector<node_dir> history;
   std::vector<PSNode *> nodes;
   PSNode *ball_node;
   player turn;

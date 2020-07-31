@@ -11,10 +11,128 @@ const int PSGui::item_id = 0;
 const int PSGui::item_name = 1;
 
 PSGui::PSGui(QObject *parent, PSGame *game)
-    : QGraphicsScene(parent), game(game) {
+    : QGraphicsScene(parent), game(game), ball(nullptr) {
   auto board_nodes = game->getBoard()->getNodes();
 
-  // Set up fields
+  // Set up fields (nodes)
+  setupFields();
+
+  // Label nets
+  p1text = addText("P1");
+  p1text->setPos(2 * offset + (PSBoard::width / 2 + 1) * separation,
+                 offset + separation / 2 - 8);
+  p2text = addText("P2");
+  p2text->setPos(2 * offset + (PSBoard::width / 2 + 1) * separation,
+                 offset + (PSBoard::height - 1) * separation - separation / 2);
+
+  // Draw boundaries
+  setupBoundaries();
+
+  // Draw fields
+  for (auto *field : fields)
+    addItem(field);
+}
+
+void PSGui::updateUI() {
+  auto board_nodes = game->getBoard()->getNodes();
+  auto turn = game->getBoard()->getTurn();
+  std::vector<node_dir> move;
+
+  // Update turn information
+  if (turn == player::p1) {
+    move = game->getP1()->getMove();
+    turn_label->setText(QString("Current turn: P1"));
+    p1text->setPlainText("P1 <<<");
+    p2text->setPlainText("P2");
+  } else {
+    move = game->getP2()->getMove();
+    turn_label->setText(QString("Current turn: P2"));
+    p1text->setPlainText("P1");
+    p2text->setPlainText("P2 <<<");
+  }
+
+  // Update move information
+  move_length_label->setText(QString("Current move: (") +
+                             QString::number(move.size()) + ")");
+
+  // Update edges
+  redrawEdges();
+
+  // Highlight current move
+  highlightMove(move);
+
+  QString move_str;
+  for (int step : move)
+    move_str += QString::number(step);
+  move_label->setText(move_str);
+
+  // Update field textures
+  for (unsigned long i = 0; i < board_nodes.size(); i++) {
+    auto node = game->getBoard()->getNode(i);
+    if (node->getType() == node_type::empty)
+      fields[i]->setPixmap(QPixmap(":/img/res/empty_field.png"));
+    else if (node->getType() == node_type::taken)
+      fields[i]->setPixmap(QPixmap(":/img/res/taken_field.png"));
+  }
+}
+
+void PSGui::connectUI(QLabel *turn_label, QLabel *move_label,
+                      QLabel *move_length_label) {
+  this->turn_label = turn_label;
+  this->move_label = move_label;
+  this->move_length_label = move_length_label;
+  updateUI();
+}
+
+void PSGui::resetGame() {
+  game->reset();
+  updateUI();
+}
+
+void PSGui::undo() {
+  game->undo();
+  updateUI();
+}
+
+void PSGui::redrawEdges() {
+  // Delete old edges
+  for (long i = edges.size() - 1; i >= 0; i--) {
+    removeItem(edges[i]);
+    delete edges[i];
+    edges.pop_back();
+  }
+
+  auto board_nodes = game->getBoard()->getNodes();
+  // Draw new edges
+  for (unsigned long i = 0; i < board_nodes.size(); i++) {
+    auto node = board_nodes[i];
+    QGraphicsPixmapItem *item = fields[i];
+    for (int i = 0; i < 8; i++) {
+      auto neighbour = node->getNeighbour(static_cast<node_dir>(i));
+      if (neighbour != nullptr && node->getEdge(static_cast<node_dir>(i))) {
+        auto neighbour_item_index =
+            neighbour->getNode_pos().toIndex(PSBoard::width);
+        QGraphicsPixmapItem *neighbour_item = fields[neighbour_item_index];
+
+        auto pen = QPen(Qt::white);
+        pen.setWidth(2);
+
+        QLineF line = QLineF(item->pos() + QPointF(8, 8),
+                             neighbour_item->pos() + QPointF(8, 8));
+
+        QGraphicsLineItem *current_edge = new QGraphicsLineItem(line);
+        current_edge->setPen(pen);
+        addItem(current_edge);
+
+        edges.push_back(current_edge);
+      }
+    }
+  }
+}
+
+void PSGui::setupFields() {
+  auto board_nodes = game->getBoard()->getNodes();
+
   for (unsigned long i = 0; i < board_nodes.size(); i++) {
     auto node = board_nodes[i];
     QGraphicsPixmapItem *current;
@@ -27,7 +145,7 @@ PSGui::PSGui(QObject *parent, PSGame *game)
     else
       current = new QGraphicsPixmapItem(QPixmap(":/img/res/edge_field2.png"));
 
-    // Set field position, scale
+    // Set field position, scale, id
     QPointF pos(offset + i % PSBoard::width * separation,
                 offset + i / PSBoard::width * separation);
     current->setPos(pos);
@@ -37,70 +155,9 @@ PSGui::PSGui(QObject *parent, PSGame *game)
 
     fields.push_back(current);
   }
-
-  // Label nets
-  p1text = addText("P1");
-  p1text->setPos(2 * offset + (PSBoard::width / 2 + 1) * separation,
-                 offset + separation / 2 - 8);
-  p2text = addText("P2");
-  p2text->setPos(2 * offset + (PSBoard::width / 2 + 1) * separation,
-                 offset + (PSBoard::height - 1) * separation - separation / 2);
-
-  // Draw boundries
-  setupBoundries();
-
-  // Draw fields
-  for (unsigned long i = 0; i < board_nodes.size(); i++)
-    addItem(fields[i]);
 }
 
-void PSGui::updateUI() {
-  auto board_nodes = game->getBoard()->getNodes();
-  auto turn = game->getBoard()->getTurn();
-
-  // Turn information
-  if (turn == player::p1) {
-    turn_label->setText(QString("Current turn: P1"));
-    p1text->setPlainText("P1 <<<");
-    p2text->setPlainText("P2");
-  } else {
-    turn_label->setText(QString("Current turn: P2"));
-    p1text->setPlainText("P1");
-    p2text->setPlainText("P2 <<<");
-  }
-
-  // Draw edges
-  for (unsigned long i = 0; i < board_nodes.size(); i++) {
-    auto node = board_nodes[i];
-    QGraphicsPixmapItem *item = fields[i];
-    for (int i = 0; i < 8; i++) {
-      auto neighbour = node->getNeighbour(static_cast<node_dir>(i));
-      if (neighbour != nullptr && node->getEdge(static_cast<node_dir>(i))) {
-        auto neighbour_item_index =
-            neighbour->getNode_pos().toIndex(PSBoard::width);
-        QGraphicsPixmapItem *neighbour_item = fields[neighbour_item_index];
-        auto pen = QPen(Qt::white);
-        pen.setWidth(2);
-        addLine(QLineF(item->pos() + QPointF(8, 8),
-                       neighbour_item->pos() + QPointF(8, 8)),
-                pen);
-      }
-    }
-  }
-
-  // Update field texture
-  auto ball_node = game->getBoard()->getBall_node();
-  auto ball_index = ball_node->getNode_pos().toIndex(PSBoard::width);
-  if (ball_node->getType() != node_type::edge)
-    fields[ball_index]->setPixmap(QPixmap(":/img/res/taken_field.png"));
-}
-
-void PSGui::connectUI(QLabel *turn_label) {
-  this->turn_label = turn_label;
-  updateUI();
-}
-
-void PSGui::setupBoundries() {
+void PSGui::setupBoundaries() {
   auto pen = QPen(Qt::white);
   pen.setWidth(4);
 
@@ -130,11 +187,46 @@ void PSGui::setupBoundries() {
                     PSBoard::width / 2 + 1, PSBoard::height - 1, pen);
 }
 
+void PSGui::highlightMove(const std::vector<node_dir> &move) {
+  QPen pen(QColor(255, 191, 0));
+  pen.setWidth(3);
+
+  // Loop through the move in reverse to find the current path
+  auto node_current = game->getBoard()->getBall_node();
+  auto node_prev = game->getBoard()->getBall_node();
+  for (auto it = move.rbegin(); it != move.rend(); it++) {
+    node_dir dir = static_cast<node_dir>((*it + 4) % 8);
+    node_prev = node_current;
+    node_current = node_prev->getNeighbour(dir);
+
+    int x1 = node_prev->getNode_pos().x;
+    int y1 = node_prev->getNode_pos().y;
+    int x2 = node_current->getNode_pos().x;
+    int y2 = node_current->getNode_pos().y;
+    edges.push_back(lineBetweenFields(x1, y1, x2, y2, pen));
+  }
+
+  // Highlight current ball position
+  if (ball != nullptr)
+    delete ball;
+  pen.setWidth(5);
+  node_current = game->getBoard()->getBall_node();
+  int x = node_current->getNode_pos().x;
+  int y = node_current->getNode_pos().y;
+  ball = ellipseAtField(x, y, 8, 8, pen);
+}
+
 QGraphicsLineItem *PSGui::lineBetweenFields(int x1, int y1, int x2, int y2,
                                             const QPen &pen) {
   return addLine(offset + 8 + x1 * separation, offset + 8 + y1 * separation,
                  offset + 8 + x2 * separation, offset + 8 + y2 * separation,
                  pen);
+}
+
+QGraphicsEllipseItem *PSGui::ellipseAtField(int x, int y, int w, int h,
+                                            const QPen &pen) {
+  return addEllipse(offset + 8 + x * separation - w / 2,
+                    offset + 8 + y * separation - h / 2, w, h, pen);
 }
 
 void PSGui::mousePressEvent(QGraphicsSceneMouseEvent *event) {
@@ -145,7 +237,7 @@ void PSGui::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
     for (auto item : items_clicked) {
       if (item->data(item_name) == "field") {
-        game->clickedOnField(item->data(item_id).toUInt());
+        game->clickedOnNode(item->data(item_id).toUInt());
         updateUI();
         qDebug() << "Clicked on field:" << item;
       }

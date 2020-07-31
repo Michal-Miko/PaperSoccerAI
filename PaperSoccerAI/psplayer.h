@@ -23,6 +23,7 @@ public:
 private:
   PSBoard *board;
   std::vector<node_dir> move;
+  bool move_complete;
 };
 
 #endif // PLAYER_H

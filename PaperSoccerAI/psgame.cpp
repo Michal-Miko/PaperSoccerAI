@@ -2,8 +2,8 @@
 
 PSGame::PSGame() { board = new PSBoard(); }
 
-void PSGame::clickedOnField(uint field) {
-  auto clickedNode = board->getNode(field);
+void PSGame::clickedOnNode(uint index) {
+  auto clickedNode = board->getNode(index);
   auto clicked_node_dir = board->getBall_node()->neighbourDir(clickedNode);
   bool move_complete = false;
   std::vector<node_dir> move;
@@ -22,6 +22,15 @@ void PSGame::clickedOnField(uint field) {
 
   if (move_complete)
     board->nextTurn();
+}
+
+void PSGame::reset() { board->resetBoard(); }
+
+void PSGame::undo() {
+  if (board->getTurn() == player::p1 && p1->name == "Player")
+    p1->undoInput();
+  else if (board->getTurn() == player::p2 && p2->name == "Player")
+    p2->undoInput();
 }
 
 PSBoard *PSGame::getBoard() const { return board; }

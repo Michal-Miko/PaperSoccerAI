@@ -18,7 +18,12 @@ Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget) {
   game->setP1(new PSPlayer(game->getBoard()));
   game->setP2(new PSPlayer(game->getBoard()));
 
-  scene->connectUI(ui->turnlabel);
+  // Connect turn label
+  scene->connectUI(ui->turnlabel, ui->movelabel, ui->movelenlabel);
+
+  // Connect buttons
+  connect(ui->undobutton, SIGNAL(released()), scene, SLOT(undo()));
+  connect(ui->resetbutton, SIGNAL(released()), scene, SLOT(resetGame()));
 }
 
 Widget::~Widget() { delete ui; }

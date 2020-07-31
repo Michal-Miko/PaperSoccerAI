@@ -75,7 +75,8 @@ void PSBoard::resetBoard() {
     nodes[i]->reset();
 
   // Put the ball in the middle
-  getNode(width / 2, height / 2)->setType(node_type::taken);
+  ball_node = getNode(width / 2, height / 2);
+  ball_node->setType(node_type::taken);
 }
 
 void PSBoard::moveBall(node_dir dir) {
@@ -83,6 +84,7 @@ void PSBoard::moveBall(node_dir dir) {
   ball_node = ball_node->getNeighbour(dir);
   if (ball_node->getType() == node_type::empty)
     ball_node->setType(node_type::taken);
+  history.push_back(dir);
 }
 
 bool PSBoard::ballNeighbour(PSNode *node) {
@@ -99,6 +101,29 @@ void PSBoard::nextTurn() {
     turn = player::p2;
   else
     turn = player::p1;
+}
+
+void PSBoard::undo() {
+  node_dir last_dir = history.back();
+  node_dir reverse_dir = static_cast<node_dir>((last_dir + 4) % 8);
+  history.pop_back();
+
+  auto old_ball_node = ball_node;
+  ball_node = ball_node->getNeighbour(reverse_dir);
+  ball_node->removeEdge(last_dir);
+
+  // Change node type if the undo causued it to become disconnected
+  if (old_ball_node->getType() == node_type::taken) {
+    bool disconnected = true;
+    for (int i = 0; i < 8; i++) {
+      if (old_ball_node->getEdge(static_cast<node_dir>(i))) {
+        disconnected = false;
+        break;
+      }
+    }
+    if (disconnected)
+      old_ball_node->setType(node_type::empty);
+  }
 }
 
 void PSBoard::setNode(int x, int y, PSNode *n) { nodes[width * y + x] = n; }

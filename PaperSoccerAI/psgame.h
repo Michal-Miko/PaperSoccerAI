@@ -10,7 +10,14 @@ class PSGame {
 public:
   PSGame();
 
-  void clickedOnField(uint field);
+  // Handle player input
+  void clickedOnNode(uint index);
+
+  // Reset the game
+  void reset();
+
+  // Undo last player move if it's not yet complete
+  void undo();
 
   PSBoard *getBoard() const;
 
