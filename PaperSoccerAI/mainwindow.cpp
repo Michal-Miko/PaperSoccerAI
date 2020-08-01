@@ -1,8 +1,9 @@
-#include "widget.h"
-#include "./ui_widget.h"
+#include "mainwindow.h"
 #include "psplayer.h"
+#include "ui_mainwindow.h"
 
-Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget) {
+MainWindow::MainWindow(QWidget *parent)
+    : QWidget(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
 
   PSGame *game = new PSGame();
@@ -15,6 +16,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget) {
   ui->p2combo->addItem(PSPlayer::name);
   ui->firstcombo->addItem(QString("Player 1"));
   ui->firstcombo->addItem(QString("Player 2"));
+
   // Set default players
   game->setP1(new PSPlayer(game->getBoard()));
   game->setP2(new PSPlayer(game->getBoard()));
@@ -49,4 +51,4 @@ Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget) {
   scene->updateUI();
 }
 
-Widget::~Widget() { delete ui; }
+MainWindow::~MainWindow() { delete ui; }

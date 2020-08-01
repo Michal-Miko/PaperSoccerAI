@@ -17,26 +17,26 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
+    mainwindow.cpp \
     point.cpp \
     psboard.cpp \
     psgame.cpp \
     psgui.cpp \
     psnode.cpp \
-    psplayer.cpp \
-    widget.cpp
+    psplayer.cpp
 
 HEADERS += \
+    mainwindow.h \
     point.h \
     psboard.h \
     psgame.h \
     psgui.h \
     psnode.h \
     psplayer.h \
-    utilities.h \
-    widget.h
+    utilities.h
 
 FORMS += \
-    widget.ui
+  mainwindow.ui
 
 TRANSLATIONS += \
     PaperSoccerAI_en_US.ts
