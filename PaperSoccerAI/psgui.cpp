@@ -33,12 +33,12 @@ PSGui::PSGui(QObject *parent, PSGame *game)
 }
 
 void PSGui::gameOver(player winner) {
-  game_over->show();
+  emit gameOverSignal();
 
   if (winner == p1)
-    winner_label->setText("P1 Won");
+    emit gameWinnerSignal("P1 Won");
   else if (winner == p2)
-    winner_label->setText("P2 Won");
+    emit gameWinnerSignal("P2 Won");
 }
 
 void PSGui::updateUI() {
@@ -49,19 +49,15 @@ void PSGui::updateUI() {
   // Update turn information
   if (turn == p1) {
     move = game->getP1()->getMove();
-    turn_label->setText(QString("Current turn: P1"));
+    emit turnSignal("Current turn: P1");
     p1text->setPlainText("P1 <<<");
     p2text->setPlainText("P2");
   } else if (turn == p2) {
     move = game->getP2()->getMove();
-    turn_label->setText(QString("Current turn: P2"));
+    emit turnSignal("Current turn: P2");
     p1text->setPlainText("P1");
     p2text->setPlainText("P2 <<<");
   }
-
-  // Update move information
-  move_length_label->setText(QString("Current move: (") +
-                             QString::number(move.size()) + ")");
 
   // Update edges
   redrawEdges();
@@ -69,13 +65,16 @@ void PSGui::updateUI() {
   // Highlight current move
   highlightMove(move);
 
+  // Update move information
   QString move_str;
   for (int step : move) {
     move_str += QString::number(step);
     if (move_str.length() % 24 == 0)
       move_str += "\n";
   }
-  move_label->setText(move_str);
+  emit moveDescSignal(move_str);
+  emit moveLengthSignal(QString("Current move: (") +
+                        QString::number(move.size()) + ")");
 
   // Update field textures
   for (unsigned long i = 0; i < board_nodes.size(); i++) {
@@ -88,25 +87,8 @@ void PSGui::updateUI() {
 
   // Check if the game is over
   auto result = game->gameOver();
-  if (result == p1) {
-    winner_label->setText("P1 Won");
-    game_over->show();
-  } else if (result == p2) {
-    winner_label->setText("P2 Won");
-    game_over->show();
-  }
-}
-
-void PSGui::connectUI(QLabel *turn_label, QLabel *move_label,
-                      QLabel *move_length_label, QFrame *game_over,
-                      QLabel *winner_label) {
-  this->turn_label = turn_label;
-  this->move_label = move_label;
-  this->move_length_label = move_length_label;
-  this->game_over = game_over;
-  this->winner_label = winner_label;
-  resetGame();
-  emit firstPlayerSignal(game->getBoard()->getFirst_player() - 1);
+  if (result != none)
+    gameOver(result);
 }
 
 void PSGui::setAlternate(int state) {

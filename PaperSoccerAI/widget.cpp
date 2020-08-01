@@ -30,14 +30,23 @@ Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget) {
   connect(ui->resetbutton, SIGNAL(released()), scene, SLOT(resetGame()));
   connect(ui->firstcombo, SIGNAL(currentIndexChanged(int)), scene,
           SLOT(setFirstPlayer(int)));
-  connect(scene, SIGNAL(firstPlayerSignal(int)), ui->firstcombo,
-          SLOT(setCurrentIndex(int)));
   connect(ui->alternatecheck, SIGNAL(stateChanged(int)), scene,
           SLOT(setAlternate(int)));
+  connect(scene, SIGNAL(firstPlayerSignal(int)), ui->firstcombo,
+          SLOT(setCurrentIndex(int)));
+  connect(scene, SIGNAL(turnSignal(QString)), ui->turnlabel,
+          SLOT(setText(QString)));
+  connect(scene, SIGNAL(moveLengthSignal(QString)), ui->movelenlabel,
+          SLOT(setText(QString)));
+  connect(scene, SIGNAL(moveDescSignal(QString)), ui->movelabel,
+          SLOT(setText(QString)));
+  connect(scene, SIGNAL(gameWinnerSignal(QString)), ui->winnerlabel,
+          SLOT(setText(QString)));
+  connect(scene, SIGNAL(gameOverSignal()), ui->gameover, SLOT(show()));
 
-  // Connect UI
-  scene->connectUI(ui->turnlabel, ui->movelabel, ui->movelenlabel, ui->gameover,
-                   ui->winnerlabel);
+  // Update ui after connecting signals
+  scene->resetGame();
+  scene->updateUI();
 }
 
 Widget::~Widget() { delete ui; }

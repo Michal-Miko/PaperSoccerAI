@@ -16,9 +16,6 @@ public:
   explicit PSGui(QObject *parent, PSGame *game);
   void gameOver(player winner);
   void updateUI();
-  void connectUI(QLabel *turn_label, QLabel *move_label,
-                 QLabel *move_length_label, QFrame *game_over,
-                 QLabel *winner_label);
 
 public slots:
   void setAlternate(int state);
@@ -28,6 +25,11 @@ public slots:
 
 signals:
   void firstPlayerSignal(int next_player);
+  void turnSignal(QString text);
+  void moveLengthSignal(QString text);
+  void moveDescSignal(QString text);
+  void gameWinnerSignal(QString text);
+  void gameOverSignal();
 
 private:
   void redrawEdges();
@@ -50,14 +52,6 @@ private:
   QGraphicsEllipseItem *ball;
   QGraphicsTextItem *p1text;
   QGraphicsTextItem *p2text;
-
-  // UI elements
-  QLabel *turn_label;
-  QLabel *move_label;
-  QLabel *move_length_label;
-  QLabel *winner_label;
-  QFrame *game_over;
-  QComboBox *first_combo;
 
   // QGraphicsScene interface
 protected:
