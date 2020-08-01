@@ -11,22 +11,42 @@ class PSBoard {
 public:
   PSBoard();
 
+  // Create all the board nodes
   void setupNodes();
+  // Add neighbours to the board nodes
   void setupNeighbours();
+  // Reset the board nodes, set turn
   void resetBoard();
+  // Move the ball, adding the edges it creates to the graph and save the move
+  // to history
   void moveBall(node_dir dir);
+  // Check if the given node is a reachable neighbour of the ball node
   bool ballNeighbour(PSNode *node);
-  bool gameOver();
+  // Update the turn after a move
   void nextTurn();
+  // Undo the last move in history
   void undo();
 
+  // ===============
+  // Constants
+  // ===============
+
+  // Board dimensions
   static const int width;
   static const int height;
+  // Net positions
   static const Point p1_goal;
   static const Point p2_goal;
 
+  // ===============
+  // Accessors
+  // ===============
+
+  // Modify node at the given position
   void setNode(int x, int y, PSNode *n);
+  // Retrieve node at the given position
   PSNode *getNode(int x, int y);
+  // Retrieve node with the given index
   PSNode *getNode(uint i);
 
   std::vector<PSNode *> getNodes() const;

@@ -22,6 +22,10 @@ public:
   // Check if the game is over, return the winner
   player gameOver();
 
+  // ===============
+  // Accessors
+  // ===============
+
   PSBoard *getBoard() const;
 
   PSPlayer *getP1() const;

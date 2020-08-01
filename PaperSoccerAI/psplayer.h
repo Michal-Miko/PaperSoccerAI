@@ -15,6 +15,7 @@ public:
   bool playerInput(node_dir dir);
   // Undoes the last input if the move is not complete
   void undoInput();
+  // Reset player attributes
   void reset();
 
   std::vector<node_dir> getMove();

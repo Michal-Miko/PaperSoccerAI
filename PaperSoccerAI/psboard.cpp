@@ -101,6 +101,8 @@ bool PSBoard::ballNeighbour(PSNode *node) {
     auto neighbour = node->getNeighbour(static_cast<node_dir>(i));
     if (neighbour == ball_node && !node->getEdge(static_cast<node_dir>(i)))
       return true;
+    else if (neighbour == ball_node)
+      return false;
   }
   return false;
 }
@@ -135,7 +137,11 @@ void PSBoard::undo() {
   }
 }
 
-void PSBoard::setNode(int x, int y, PSNode *n) { nodes[width * y + x] = n; }
+void PSBoard::setNode(int x, int y, PSNode *n) {
+  if (nodes[width * y + x] != nullptr)
+    delete nodes[width * y + x];
+  nodes[width * y + x] = n;
+}
 
 PSNode *PSBoard::getNode(int x, int y) { return nodes[width * y + x]; }
 

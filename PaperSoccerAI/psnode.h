@@ -30,8 +30,14 @@ public:
 
   void reset();
 
+  // Get neighbours not blocked by an existing edge
   std::vector<node_dir> getOpenNeighbours();
+  // Get the direction of a neighbouring node (this->neighbour)
   node_dir neighbourDir(PSNode *n);
+
+  // ===============
+  // Accessors
+  // ===============
 
   void setNeighbour(PSNode *n, node_dir dir);
   void removeNeighbour(node_dir dir);

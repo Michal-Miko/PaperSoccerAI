@@ -21,8 +21,12 @@ public:
   bool operator==(const Point &rhs) const;
   friend std::ostream &operator<<(std::ostream &os, const Point &p);
 
+  // Convert a 2d array index to a 1d index
   int toIndex(int width) const;
+
+  // Distance between two points
   float distance(const Point &p) const;
+  // Manhattan distance between two points
   int distanceMan(const Point &p) const;
 };
 
