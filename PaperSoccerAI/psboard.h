@@ -5,7 +5,7 @@
 #include <vector>
 
 // p1 - top, p2 - bottom
-enum player { p1, p2 };
+enum player { none = 0, p1 = 1, p2 = 2 };
 
 class PSBoard {
 public:
@@ -22,6 +22,8 @@ public:
 
   static const int width;
   static const int height;
+  static const Point p1_goal;
+  static const Point p2_goal;
 
   void setNode(int x, int y, PSNode *n);
   PSNode *getNode(int x, int y);
@@ -34,11 +36,19 @@ public:
 
   PSNode *getBall_node() const;
 
+  player getFirst_player() const;
+  void setFirst_player(const player &value);
+
+  bool getAlternate_first() const;
+  void setAlternate_first(bool value);
+
 private:
+  player first_player;
+  player turn;
+  bool alternate_first;
   std::vector<node_dir> history;
   std::vector<PSNode *> nodes;
   PSNode *ball_node;
-  player turn;
 };
 
 #endif // PSBOARD_H

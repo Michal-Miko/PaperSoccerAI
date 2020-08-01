@@ -2,11 +2,11 @@
 
 const int PSBoard::width = 9;
 const int PSBoard::height = 13;
+const Point PSBoard::p1_goal{PSBoard::width / 2, 0};
+const Point PSBoard::p2_goal{PSBoard::width / 2, PSBoard::height - 1};
 
-PSBoard::PSBoard() {
-  // Set turn
-  turn = p1;
-
+PSBoard::PSBoard()
+    : first_player(p1), turn(first_player), alternate_first(true) {
   // Initialize empty board
   setupNodes();
 
@@ -70,6 +70,15 @@ void PSBoard::setupNeighbours() {
 }
 
 void PSBoard::resetBoard() {
+  // Set turn
+  turn = first_player;
+
+  // Alternate first_player;
+  if (alternate_first && first_player == p1)
+    first_player = p2;
+  else if (alternate_first && first_player == p2)
+    first_player = p1;
+
   // Reset nodes
   for (unsigned long i = 0; i < nodes.size(); i++)
     nodes[i]->reset();
@@ -97,10 +106,10 @@ bool PSBoard::ballNeighbour(PSNode *node) {
 }
 
 void PSBoard::nextTurn() {
-  if (turn == player::p1)
-    turn = player::p2;
-  else
-    turn = player::p1;
+  if (turn == p1)
+    turn = p2;
+  else if (turn == p2)
+    turn = p1;
 }
 
 void PSBoard::undo() {
@@ -139,3 +148,11 @@ void PSBoard::setTurn(const player &value) { turn = value; }
 player PSBoard::getTurn() const { return turn; }
 
 PSNode *PSBoard::getBall_node() const { return ball_node; }
+
+player PSBoard::getFirst_player() const { return first_player; }
+
+void PSBoard::setFirst_player(const player &value) { first_player = value; }
+
+bool PSBoard::getAlternate_first() const { return alternate_first; }
+
+void PSBoard::setAlternate_first(bool value) { alternate_first = value; }

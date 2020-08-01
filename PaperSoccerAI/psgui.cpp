@@ -1,6 +1,5 @@
 #include "psgui.h"
 #include "ui_widget.h"
-#include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
 #include <unordered_map>
@@ -33,18 +32,27 @@ PSGui::PSGui(QObject *parent, PSGame *game)
     addItem(field);
 }
 
+void PSGui::gameOver(player winner) {
+  game_over->show();
+
+  if (winner == p1)
+    winner_label->setText("P1 Won");
+  else if (winner == p2)
+    winner_label->setText("P2 Won");
+}
+
 void PSGui::updateUI() {
   auto board_nodes = game->getBoard()->getNodes();
   auto turn = game->getBoard()->getTurn();
   std::vector<node_dir> move;
 
   // Update turn information
-  if (turn == player::p1) {
+  if (turn == p1) {
     move = game->getP1()->getMove();
     turn_label->setText(QString("Current turn: P1"));
     p1text->setPlainText("P1 <<<");
     p2text->setPlainText("P2");
-  } else {
+  } else if (turn == p2) {
     move = game->getP2()->getMove();
     turn_label->setText(QString("Current turn: P2"));
     p1text->setPlainText("P1");
@@ -62,8 +70,11 @@ void PSGui::updateUI() {
   highlightMove(move);
 
   QString move_str;
-  for (int step : move)
+  for (int step : move) {
     move_str += QString::number(step);
+    if (move_str.length() % 24 == 0)
+      move_str += "\n";
+  }
   move_label->setText(move_str);
 
   // Update field textures
@@ -74,19 +85,42 @@ void PSGui::updateUI() {
     else if (node->getType() == node_type::taken)
       fields[i]->setPixmap(QPixmap(":/img/res/taken_field.png"));
   }
+
+  // Check if the game is over
+  auto result = game->gameOver();
+  if (result == p1) {
+    winner_label->setText("P1 Won");
+    game_over->show();
+  } else if (result == p2) {
+    winner_label->setText("P2 Won");
+    game_over->show();
+  }
 }
 
 void PSGui::connectUI(QLabel *turn_label, QLabel *move_label,
-                      QLabel *move_length_label) {
+                      QLabel *move_length_label, QFrame *game_over,
+                      QLabel *winner_label) {
   this->turn_label = turn_label;
   this->move_label = move_label;
   this->move_length_label = move_length_label;
-  updateUI();
+  this->game_over = game_over;
+  this->winner_label = winner_label;
+  resetGame();
+  emit firstPlayerSignal(game->getBoard()->getFirst_player() - 1);
+}
+
+void PSGui::setAlternate(int state) {
+  game->getBoard()->setAlternate_first(state);
+}
+
+void PSGui::setFirstPlayer(int player) {
+  game->getBoard()->setFirst_player(static_cast<enum player>(player + 1));
 }
 
 void PSGui::resetGame() {
   game->reset();
   updateUI();
+  emit firstPlayerSignal(game->getBoard()->getFirst_player() - 1);
 }
 
 void PSGui::undo() {
@@ -213,7 +247,7 @@ void PSGui::highlightMove(const std::vector<node_dir> &move) {
   node_current = game->getBoard()->getBall_node();
   int x = node_current->getNode_pos().x;
   int y = node_current->getNode_pos().y;
-  ball = ellipseAtField(x, y, 8, 8, pen);
+  ball = ellipseAtField(x, y, 6, 6, pen);
 }
 
 QGraphicsLineItem *PSGui::lineBetweenFields(int x1, int y1, int x2, int y2,
@@ -232,14 +266,11 @@ QGraphicsEllipseItem *PSGui::ellipseAtField(int x, int y, int w, int h,
 void PSGui::mousePressEvent(QGraphicsSceneMouseEvent *event) {
   if (event->button() == Qt::LeftButton) {
     auto items_clicked = items(event->buttonDownScenePos(Qt::LeftButton));
-    qDebug() << "There are" << items_clicked.size() << "items at position"
-             << event->buttonDownScenePos(Qt::LeftButton);
 
     for (auto item : items_clicked) {
       if (item->data(item_name) == "field") {
         game->clickedOnNode(item->data(item_id).toUInt());
         updateUI();
-        qDebug() << "Clicked on field:" << item;
       }
     }
   }

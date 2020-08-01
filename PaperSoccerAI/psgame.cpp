@@ -8,7 +8,11 @@ void PSGame::clickedOnNode(uint index) {
   bool move_complete = false;
   std::vector<node_dir> move;
 
-  // check if the clicked field is next to the ball and isnt blocked
+  // Block input if the game is over
+  if (gameOver() != player::none)
+    return;
+
+  // Check if the clicked field is next to the ball and isnt blocked
   if (clicked_node_dir == node_dir::invalid)
     return;
 
@@ -35,6 +39,22 @@ void PSGame::undo() {
     p1->undoInput();
   else if (board->getTurn() == player::p2 && p2->name == "Player")
     p2->undoInput();
+}
+
+player PSGame::gameOver() {
+  auto ball = board->getBall_node();
+
+  // Ball is stuck (getting the ball stuck ends the turn)
+  if (ball->getOpenNeighbours().size() == 0)
+    return board->getTurn();
+
+  // Ball is in a net
+  if (ball->getNode_pos() == PSBoard::p1_goal)
+    return player::p2;
+  if (ball->getNode_pos() == PSBoard::p2_goal)
+    return player::p1;
+
+  return player::none;
 }
 
 PSBoard *PSGame::getBoard() const { return board; }

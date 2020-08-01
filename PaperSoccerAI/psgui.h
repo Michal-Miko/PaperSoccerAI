@@ -2,6 +2,7 @@
 #define PSGUI_H
 
 #include "psgame.h"
+#include <QComboBox>
 #include <QGraphicsItemGroup>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
@@ -13,15 +14,20 @@ class PSGui : public QGraphicsScene {
   Q_OBJECT
 public:
   explicit PSGui(QObject *parent, PSGame *game);
+  void gameOver(player winner);
   void updateUI();
   void connectUI(QLabel *turn_label, QLabel *move_label,
-                 QLabel *move_length_label);
+                 QLabel *move_length_label, QFrame *game_over,
+                 QLabel *winner_label);
 
 public slots:
+  void setAlternate(int state);
+  void setFirstPlayer(int player);
   void resetGame();
   void undo();
 
 signals:
+  void firstPlayerSignal(int next_player);
 
 private:
   void redrawEdges();
@@ -49,6 +55,9 @@ private:
   QLabel *turn_label;
   QLabel *move_label;
   QLabel *move_length_label;
+  QLabel *winner_label;
+  QFrame *game_over;
+  QComboBox *first_combo;
 
   // QGraphicsScene interface
 protected:

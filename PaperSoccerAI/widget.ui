@@ -34,7 +34,7 @@
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
   </property>
-  <widget class="QGraphicsView" name="graphicsView">
+  <widget class="QGraphicsView" name="PSGui">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -65,12 +65,12 @@
      <height>651</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <layout class="QVBoxLayout" name="options">
     <property name="spacing">
      <number>1</number>
     </property>
     <item>
-     <widget class="QFrame" name="frame_2">
+     <widget class="QFrame" name="main_options">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -105,31 +105,17 @@
         <property name="bottomMargin">
          <number>5</number>
         </property>
-        <item row="10" column="1">
-         <widget class="QPushButton" name="resetbutton">
+        <item row="0" column="0" colspan="2">
+         <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Reset</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QComboBox" name="p2combo">
-          <property name="placeholderText">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0" colspan="2">
-         <widget class="QLabel" name="movelenlabel">
-          <property name="text">
-           <string>Current move: (&lt;length&gt;)</string>
+           <string>First move</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
-        <item row="9" column="1">
+        <item row="12" column="1">
          <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -142,14 +128,14 @@
           </property>
          </spacer>
         </item>
-        <item row="10" column="0">
+        <item row="13" column="0">
          <widget class="QPushButton" name="undobutton">
           <property name="text">
            <string>Undo</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="0" colspan="2">
+        <item row="6" column="0" colspan="2">
          <widget class="QLabel" name="turnlabel">
           <property name="text">
            <string>Current turn: &lt;player&gt;</string>
@@ -159,7 +145,65 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="0">
+        <item row="5" column="1">
+         <widget class="QComboBox" name="p2combo">
+          <property name="placeholderText">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0" colspan="2">
+         <widget class="QLabel" name="movelabel">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="lineWidth">
+           <number>1</number>
+          </property>
+          <property name="text">
+           <string>&lt;move&gt;</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" colspan="2">
+         <widget class="QLabel" name="movelenlabel">
+          <property name="text">
+           <string>Current move: (&lt;length&gt;)</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="1">
+         <widget class="QPushButton" name="resetbutton">
+          <property name="text">
+           <string>Reset</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Player 2</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="0">
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -172,7 +216,7 @@
           </property>
          </spacer>
         </item>
-        <item row="0" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
            <string>Player 1</string>
@@ -182,33 +226,30 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Player 2</string>
+        <item row="1" column="0" colspan="2">
+         <widget class="QComboBox" name="firstcombo">
+          <property name="currentText">
+           <string/>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
+          <property name="placeholderText">
+           <string/>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="5" column="0">
          <widget class="QComboBox" name="p1combo">
           <property name="placeholderText">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="5" column="0" colspan="2">
-         <widget class="QLabel" name="movelabel">
-          <property name="lineWidth">
-           <number>1</number>
-          </property>
+        <item row="2" column="0" colspan="2">
+         <widget class="QCheckBox" name="alternatecheck">
           <property name="text">
-           <string>&lt;move&gt;</string>
+           <string>Alternate first move</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -217,7 +258,10 @@
      </widget>
     </item>
     <item>
-     <widget class="QFrame" name="frame">
+     <widget class="QFrame" name="playok_options">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -254,6 +298,9 @@
         </property>
         <item>
          <widget class="QPushButton" name="ssabutton">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="maximumSize">
            <size>
             <width>999</width>
@@ -309,7 +356,90 @@
     </item>
    </layout>
   </widget>
+  <widget class="QFrame" name="gameover">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>273</y>
+     <width>250</width>
+     <height>104</height>
+    </rect>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_5">
+      <property name="font">
+       <font>
+        <pointsize>25</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Game Over</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::AutoText</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="winnerlabel">
+      <property name="font">
+       <font>
+        <pointsize>20</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>P1 Won</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>resetbutton</sender>
+   <signal>released()</signal>
+   <receiver>gameover</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>599</x>
+     <y>304</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>324</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

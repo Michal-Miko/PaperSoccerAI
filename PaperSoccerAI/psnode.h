@@ -30,6 +30,7 @@ public:
 
   void reset();
 
+  std::vector<node_dir> getOpenNeighbours();
   node_dir neighbourDir(PSNode *n);
 
   void setNeighbour(PSNode *n, node_dir dir);

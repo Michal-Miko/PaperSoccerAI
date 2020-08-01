@@ -6,9 +6,15 @@ PSPlayer::PSPlayer(PSBoard *b) : board(b), move_complete(false) {}
 
 bool PSPlayer::playerInput(node_dir dir) {
   auto ball = board->getBall_node();
-  if (ball->getNeighbour(dir)->getType() == node_type::empty)
+  auto dest = ball->getNeighbour(dir);
+
+  // A move is complete when player gets stuck, ends on an empty node or ends on
+  // a net node
+  if (dest->getType() == node_type::empty ||
+      dest->getOpenNeighbours().size() == 1 ||
+      dest->getNode_pos() == PSBoard::p1_goal ||
+      dest->getNode_pos() == PSBoard::p2_goal)
     move_complete = true;
-  // TODO: check if the player is stuck in a corner without moves
 
   move.push_back(dir);
   board->moveBall(dir);

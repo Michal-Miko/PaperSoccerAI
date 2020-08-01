@@ -16,8 +16,11 @@ public:
   // Reset the game
   void reset();
 
-  // Undo last player move if it's not yet complete
+  // Undo the last part of a move if it's not yet complete
   void undo();
+
+  // Check if the game is over, return the winner
+  player gameOver();
 
   PSBoard *getBoard() const;
 

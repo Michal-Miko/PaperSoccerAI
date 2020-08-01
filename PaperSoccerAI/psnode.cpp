@@ -18,6 +18,14 @@ void PSNode::reset() {
     set_edges[i] = false;
 }
 
+std::vector<node_dir> PSNode::getOpenNeighbours() {
+  std::vector<node_dir> out;
+  for (uint i = 0; i < 8; i++)
+    if (neighbours[i] != nullptr && !set_edges[i])
+      out.push_back(static_cast<node_dir>(i));
+  return out;
+}
+
 node_dir PSNode::neighbourDir(PSNode *n) {
   auto pos_diff = n->node_pos - node_pos;
 
