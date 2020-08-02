@@ -31,6 +31,10 @@
   <property name="windowTitle">
    <string>PaperSoccerAI</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/img/res/taken_field.png</normaloff>:/img/res/taken_field.png</iconset>
+  </property>
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
   </property>
@@ -297,7 +301,7 @@
          <number>10</number>
         </property>
         <item>
-         <widget class="QPushButton" name="ssabutton">
+         <widget class="QPushButton" name="screenareabutton">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -319,17 +323,11 @@
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+         <widget class="QLabel" name="screenpreview">
+          <property name="text">
+           <string/>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -413,7 +411,7 @@
        </font>
       </property>
       <property name="text">
-       <string>P1 Won</string>
+       <string>P1 Wins</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -423,7 +421,9 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>resetbutton</sender>

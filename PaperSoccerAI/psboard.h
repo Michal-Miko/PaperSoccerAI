@@ -10,6 +10,7 @@ enum player { none = 0, p1 = 1, p2 = 2 };
 class PSBoard {
 public:
   PSBoard();
+  ~PSBoard();
 
   // Create all the board nodes
   void setupNodes();

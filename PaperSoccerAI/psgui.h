@@ -2,6 +2,7 @@
 #define PSGUI_H
 
 #include "psgame.h"
+#include "scsettings.h"
 #include <QComboBox>
 #include <QGraphicsItemGroup>
 #include <QGraphicsPixmapItem>
@@ -17,19 +18,23 @@ public:
   void gameOver(player winner);
   void updateUI();
 
+  ScreenCaptureSettings *getScs_widget() const;
+
 public slots:
+  void screenshot();
   void setAlternate(int state);
   void setFirstPlayer(int player);
   void resetGame();
   void undo();
 
 signals:
-  void firstPlayerSignal(int next_player);
+  void firstPlayerSignal(int first_player);
   void turnSignal(QString text);
   void moveLengthSignal(QString text);
   void moveDescSignal(QString text);
   void gameWinnerSignal(QString text);
   void gameOverSignal();
+  void screenGrab(QPixmap screencap);
 
 private:
   void redrawEdges();
@@ -52,6 +57,9 @@ private:
   QGraphicsEllipseItem *ball;
   QGraphicsTextItem *p1text;
   QGraphicsTextItem *p2text;
+
+  // Screen capture settings
+  ScreenCaptureSettings *scs_widget;
 
   // QGraphicsScene interface
 protected:

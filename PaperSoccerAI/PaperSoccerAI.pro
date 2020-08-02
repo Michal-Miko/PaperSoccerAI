@@ -23,7 +23,8 @@ SOURCES += \
     psgame.cpp \
     psgui.cpp \
     psnode.cpp \
-    psplayer.cpp
+    psplayer.cpp \
+    scsettings.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -33,10 +34,12 @@ HEADERS += \
     psgui.h \
     psnode.h \
     psplayer.h \
+    scsettings.h \
     utilities.h
 
 FORMS += \
-  mainwindow.ui
+  mainwindow.ui \
+  scsettings.ui
 
 TRANSLATIONS += \
     PaperSoccerAI_en_US.ts

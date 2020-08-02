@@ -2,6 +2,8 @@
 #include "ui_widget.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
+#include <QScreen>
+#include <QtDebug>
 #include <unordered_map>
 
 const int PSGui::separation = 50;
@@ -30,15 +32,18 @@ PSGui::PSGui(QObject *parent, PSGame *game)
   // Draw fields
   for (auto *field : fields)
     addItem(field);
+
+  // Setup screen capture settings window
+  scs_widget = new ScreenCaptureSettings();
 }
 
 void PSGui::gameOver(player winner) {
   emit gameOverSignal();
 
   if (winner == p1)
-    emit gameWinnerSignal("P1 Won");
+    emit gameWinnerSignal("P1 Wins");
   else if (winner == p2)
-    emit gameWinnerSignal("P2 Won");
+    emit gameWinnerSignal("P2 Wins");
 }
 
 void PSGui::updateUI() {
@@ -89,6 +94,13 @@ void PSGui::updateUI() {
   auto result = game->gameOver();
   if (result != none)
     gameOver(result);
+}
+
+void PSGui::screenshot() {
+  qDebug() << QGuiApplication::screens();
+  QScreen *pscreen = QGuiApplication::primaryScreen();
+  QPixmap *ss = new QPixmap(pscreen->grabWindow(0));
+  emit screenGrab(*ss);
 }
 
 void PSGui::setAlternate(int state) {
@@ -244,6 +256,8 @@ QGraphicsEllipseItem *PSGui::ellipseAtField(int x, int y, int w, int h,
   return addEllipse(offset + 8 + x * separation - w / 2,
                     offset + 8 + y * separation - h / 2, w, h, pen);
 }
+
+ScreenCaptureSettings *PSGui::getScs_widget() const { return scs_widget; }
 
 void PSGui::mousePressEvent(QGraphicsSceneMouseEvent *event) {
   if (event->button() == Qt::LeftButton) {

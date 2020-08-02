@@ -9,6 +9,7 @@
 class PSGame {
 public:
   PSGame();
+  ~PSGame();
 
   // Handle player input
   void clickedOnNode(uint index);
@@ -36,7 +37,6 @@ public:
 
 private:
   PSBoard *board;
-
   PSPlayer *p1;
   PSPlayer *p2;
 };

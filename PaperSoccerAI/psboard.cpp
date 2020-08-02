@@ -18,6 +18,11 @@ PSBoard::PSBoard()
   ball_node->setType(node_type::taken);
 }
 
+PSBoard::~PSBoard() {
+  for (auto *node : nodes)
+    delete node;
+}
+
 void PSBoard::setupNodes() {
   // Set up node types
   for (int y = 0; y < height; y++) {

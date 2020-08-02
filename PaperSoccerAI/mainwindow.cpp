@@ -7,9 +7,9 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
 
   PSGame *game = new PSGame();
-  PSGui *scene = new PSGui(this, game);
-  scene->setSceneRect(0, 0, 450, 650);
-  ui->PSGui->setScene(scene);
+  PSGui *psgui = new PSGui(this, game);
+  psgui->setSceneRect(0, 0, 450, 650);
+  ui->PSGui->setScene(psgui);
 
   // Add players to combo boxes
   ui->p1combo->addItem(PSPlayer::name);
@@ -28,27 +28,39 @@ MainWindow::MainWindow(QWidget *parent)
   ui->gameover->setPalette(gameover_palette);
 
   // Connect signals
-  connect(ui->undobutton, SIGNAL(released()), scene, SLOT(undo()));
-  connect(ui->resetbutton, SIGNAL(released()), scene, SLOT(resetGame()));
-  connect(ui->firstcombo, SIGNAL(currentIndexChanged(int)), scene,
+  connect(ui->undobutton, SIGNAL(released()), psgui, SLOT(undo()));
+  connect(ui->resetbutton, SIGNAL(released()), psgui, SLOT(resetGame()));
+  connect(ui->firstcombo, SIGNAL(currentIndexChanged(int)), psgui,
           SLOT(setFirstPlayer(int)));
-  connect(ui->alternatecheck, SIGNAL(stateChanged(int)), scene,
+  connect(ui->alternatecheck, SIGNAL(stateChanged(int)), psgui,
           SLOT(setAlternate(int)));
-  connect(scene, SIGNAL(firstPlayerSignal(int)), ui->firstcombo,
+  connect(ui->screenareabutton, SIGNAL(released()), psgui->getScs_widget(),
+          SLOT(show()));
+  connect(ui->screenareabutton, SIGNAL(released()), psgui->getScs_widget(),
+          SLOT(captureScreen()));
+  connect(ui->screenareabutton, SIGNAL(released()), psgui->getScs_widget(),
+          SLOT(getScreens()));
+
+  connect(psgui, SIGNAL(firstPlayerSignal(int)), ui->firstcombo,
           SLOT(setCurrentIndex(int)));
-  connect(scene, SIGNAL(turnSignal(QString)), ui->turnlabel,
+  connect(psgui, SIGNAL(turnSignal(QString)), ui->turnlabel,
           SLOT(setText(QString)));
-  connect(scene, SIGNAL(moveLengthSignal(QString)), ui->movelenlabel,
+  connect(psgui, SIGNAL(moveLengthSignal(QString)), ui->movelenlabel,
           SLOT(setText(QString)));
-  connect(scene, SIGNAL(moveDescSignal(QString)), ui->movelabel,
+  connect(psgui, SIGNAL(moveDescSignal(QString)), ui->movelabel,
           SLOT(setText(QString)));
-  connect(scene, SIGNAL(gameWinnerSignal(QString)), ui->winnerlabel,
+  connect(psgui, SIGNAL(gameWinnerSignal(QString)), ui->winnerlabel,
           SLOT(setText(QString)));
-  connect(scene, SIGNAL(gameOverSignal()), ui->gameover, SLOT(show()));
+  connect(psgui, SIGNAL(gameOverSignal()), ui->gameover, SLOT(show()));
+
+  //  connect(ui->screenareabutton, SIGNAL(released()), psgui,
+  //  SLOT(screenshot())); connect(psgui, SIGNAL(screenGrab(QPixmap)),
+  //  ui->screenpreview,
+  //          SLOT(setPixmap(QPixmap)));
 
   // Update ui after connecting signals
-  scene->resetGame();
-  scene->updateUI();
+  psgui->resetGame();
+  psgui->updateUI();
 }
 
 MainWindow::~MainWindow() { delete ui; }

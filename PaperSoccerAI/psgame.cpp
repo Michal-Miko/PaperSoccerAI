@@ -2,6 +2,12 @@
 
 PSGame::PSGame() { board = new PSBoard(); }
 
+PSGame::~PSGame() {
+  delete board;
+  delete p1;
+  delete p2;
+}
+
 void PSGame::clickedOnNode(uint index) {
   auto clickedNode = board->getNode(index);
   auto clicked_node_dir = board->getBall_node()->neighbourDir(clickedNode);
