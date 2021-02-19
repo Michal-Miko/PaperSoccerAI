@@ -1,6 +1,6 @@
 #include "psgame.h"
 
-PSGame::PSGame() { board = new PSBoard(); }
+PSGame::PSGame() : board(new PSBoard()), p1(nullptr), p2(nullptr) {}
 
 PSGame::~PSGame() {
   delete board;
@@ -9,66 +9,94 @@ PSGame::~PSGame() {
 }
 
 void PSGame::clickedOnNode(uint index) {
-  auto clickedNode = board->getNode(index);
-  auto clicked_node_dir = board->getBall_node()->neighbourDir(clickedNode);
+  auto clicked_node = board->getNode(index);
+  auto clicked_node_dir = board->getBall_node()->neighbourDir(clicked_node);
   bool move_complete = false;
-  std::vector<node_dir> move;
 
   // Block input if the game is over
-  if (gameOver() != player::none)
+  if (gameOver() != PlayerID::none)
     return;
 
-  // Check if the clicked field is next to the ball and isnt blocked
-  if (clicked_node_dir == node_dir::invalid)
+  // Check if the clicked field is next to the ball and isn't blocked
+  if (clicked_node_dir == NodeDir::invalid)
     return;
 
-  if (board->getTurn() == player::p1 && p1->name == "Player") {
+  if (board->getTurn() == PlayerID::p1 && p1->type == PlayerType::player) {
     move_complete = p1->playerInput(clicked_node_dir);
-    move = p1->getMove();
-  } else if (board->getTurn() == player::p2 && p2->name == "Player") {
+  } else if (board->getTurn() == PlayerID::p2 &&
+             p2->type == PlayerType::player) {
     move_complete = p2->playerInput(clicked_node_dir);
-    move = p2->getMove();
   }
 
   if (move_complete)
-    board->nextTurn();
+    nextTurn();
 }
 
 void PSGame::reset() {
   board->resetBoard();
   p1->reset();
   p2->reset();
+  if (board->getTurn() == PlayerID::p1 && p1->type != PlayerType::player) {
+    auto move = p1->getMove();
+    nextTurn();
+  } else if (board->getTurn() == PlayerID::p2 &&
+             p2->type != PlayerType::player) {
+    auto move = p2->getMove();
+    nextTurn();
+  }
 }
 
 void PSGame::undo() {
-  if (board->getTurn() == player::p1 && p1->name == "Player")
+  if (board->getTurn() == PlayerID::p1 && p1->type == PlayerType::player)
     p1->undoInput();
-  else if (board->getTurn() == player::p2 && p2->name == "Player")
+  else if (board->getTurn() == PlayerID::p2 && p2->type == PlayerType::player)
     p2->undoInput();
 }
 
-player PSGame::gameOver() {
+void PSGame::nextTurn() {
+  board->updateTurn();
+  if (gameOver() == PlayerID::none) {
+    if (board->getTurn() == PlayerID::p1 && p1->type != PlayerType::player) {
+      auto move = p1->getMove();
+      nextTurn();
+    } else if (board->getTurn() == PlayerID::p2 &&
+               p2->type != PlayerType::player) {
+      auto move = p2->getMove();
+      nextTurn();
+    }
+  }
+}
+
+PlayerID PSGame::gameOver() {
   auto ball = board->getBall_node();
 
   // Ball is stuck (getting the ball stuck ends the turn)
-  if (ball->getOpenNeighbours().size() == 0)
+  if (ball->getOpenDirections().size() == 0)
     return board->getTurn();
 
   // Ball is in a net
   if (ball->getNode_pos() == PSBoard::p1_goal)
-    return player::p2;
+    return PlayerID::p2;
   if (ball->getNode_pos() == PSBoard::p2_goal)
-    return player::p1;
+    return PlayerID::p1;
 
-  return player::none;
+  return PlayerID::none;
 }
 
 PSBoard *PSGame::getBoard() const { return board; }
 
 PSPlayer *PSGame::getP1() const { return p1; }
 
-void PSGame::setP1(PSPlayer *value) { p1 = value; }
+void PSGame::setP1(PSPlayer *value) {
+  if (p1 != nullptr)
+    delete p1;
+  p1 = value;
+}
 
 PSPlayer *PSGame::getP2() const { return p2; }
 
-void PSGame::setP2(PSPlayer *value) { p2 = value; }
+void PSGame::setP2(PSPlayer *value) {
+  if (p2 != nullptr)
+    delete p2;
+  p2 = value;
+}

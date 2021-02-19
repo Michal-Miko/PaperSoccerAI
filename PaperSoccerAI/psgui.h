@@ -15,13 +15,15 @@ class PSGui : public QGraphicsScene {
   Q_OBJECT
 public:
   explicit PSGui(QObject *parent, PSGame *game);
-  void gameOver(player winner);
+  void gameOver(PlayerID winner);
   void updateUI();
 
   ScreenCaptureSettings *getScs_widget() const;
 
 public slots:
-  void screenshot();
+  void setP1(QString str);
+  void setP2(QString str);
+  void setCaptureArea(QScreen *screen, QRect capture_area);
   void setAlternate(int state);
   void setFirstPlayer(int player);
   void resetGame();
@@ -37,10 +39,12 @@ signals:
   void screenGrab(QPixmap screencap);
 
 private:
+  QPixmap *getCapturePreview();
   void redrawEdges();
   void setupFields();
   void setupBoundaries();
-  void highlightMove(const std::vector<node_dir> &move);
+  void highlightMove(const std::vector<NodeDir> &move);
+  void highlightDirections();
   QGraphicsLineItem *lineBetweenFields(int x1, int y1, int x2, int y2,
                                        const QPen &pen);
   QGraphicsEllipseItem *ellipseAtField(int x, int y, int w, int h,

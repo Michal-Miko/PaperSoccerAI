@@ -41,6 +41,10 @@ public:
   explicit ScreenCaptureSettings(QWidget *parent = nullptr);
   ~ScreenCaptureSettings();
 
+  QScreen *getScreen() const;
+
+  QRect getCapture_area() const;
+
 public slots:
   void confirmSelection();
   void getScreens();
@@ -51,7 +55,7 @@ public slots:
   void setBottomRight(int x, int y);
 
 signals:
-  void screenCaptured(QPixmap);
+  void screenCaptured(QPixmap captured_pixmap);
   void selectionConfirmed(QScreen *screen, QRect capture_area);
 
 private:
@@ -60,6 +64,10 @@ private:
   QRect capture_area;
   QGraphicsRectItem *capture_area_item;
   QGraphicsPixmapItem *captured_pixmap;
+
+  // QWidget interface
+protected:
+  void resizeEvent(QResizeEvent *event);
 };
 
 #endif // SCSETTINGS_H

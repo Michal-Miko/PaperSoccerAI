@@ -76,8 +76,9 @@ ScreenCaptureSettings::ScreenCaptureSettings(QWidget *parent)
 ScreenCaptureSettings::~ScreenCaptureSettings() { delete ui; }
 
 void ScreenCaptureSettings::confirmSelection() {
-  emit selectionConfirmed(screen, capture_area);
   hide();
+  captureScreen();
+  emit selectionConfirmed(screen, capture_area);
 }
 
 void ScreenCaptureSettings::getScreens() {
@@ -130,4 +131,13 @@ void ScreenCaptureSettings::setBottomRight(int x, int y) {
   capture_area =
       QRect(QPoint(capture_area.left(), capture_area.top()), QPoint(x, y));
   capture_area_item->setRect(capture_area);
+}
+
+QRect ScreenCaptureSettings::getCapture_area() const { return capture_area; }
+
+QScreen *ScreenCaptureSettings::getScreen() const { return screen; }
+
+void ScreenCaptureSettings::resizeEvent(QResizeEvent *event) {
+  captureScreen();
+  QDialog::resizeEvent(event);
 }

@@ -12,8 +12,10 @@ MainWindow::MainWindow(QWidget *parent)
   ui->PSGui->setScene(psgui);
 
   // Add players to combo boxes
-  ui->p1combo->addItem(PSPlayer::name);
-  ui->p2combo->addItem(PSPlayer::name);
+  for (const auto &pair : PTName) {
+    ui->p1combo->addItem(pair.second);
+    ui->p2combo->addItem(pair.second);
+  }
   ui->firstcombo->addItem(QString("Player 1"));
   ui->firstcombo->addItem(QString("Player 2"));
 
@@ -30,6 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
   // Connect signals
   connect(ui->undobutton, SIGNAL(released()), psgui, SLOT(undo()));
   connect(ui->resetbutton, SIGNAL(released()), psgui, SLOT(resetGame()));
+  connect(ui->p1combo, SIGNAL(textActivated(QString)), psgui,
+          SLOT(setP1(QString)));
+  connect(ui->p2combo, SIGNAL(textActivated(QString)), psgui,
+          SLOT(setP2(QString)));
   connect(ui->firstcombo, SIGNAL(currentIndexChanged(int)), psgui,
           SLOT(setFirstPlayer(int)));
   connect(ui->alternatecheck, SIGNAL(stateChanged(int)), psgui,
@@ -52,6 +58,8 @@ MainWindow::MainWindow(QWidget *parent)
   connect(psgui, SIGNAL(gameWinnerSignal(QString)), ui->winnerlabel,
           SLOT(setText(QString)));
   connect(psgui, SIGNAL(gameOverSignal()), ui->gameover, SLOT(show()));
+  connect(psgui, SIGNAL(screenGrab(QPixmap)), ui->screenpreviewlabel,
+          SLOT(setPixmap(QPixmap)));
 
   //  connect(ui->screenareabutton, SIGNAL(released()), psgui,
   //  SLOT(screenshot())); connect(psgui, SIGNAL(screenGrab(QPixmap)),

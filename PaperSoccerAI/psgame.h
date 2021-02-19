@@ -1,9 +1,12 @@
 #ifndef PSGAME_H
 #define PSGAME_H
 
+#include "psaiplayer.h"
 #include "psboard.h"
 #include "psnode.h"
 #include "psplayer.h"
+#include "psplayokplayer.h"
+#include "psrandomplayer.h"
 #include <vector>
 
 class PSGame {
@@ -20,8 +23,11 @@ public:
   // Undo the last part of a move if it's not yet complete
   void undo();
 
+  // Process next turn
+  void nextTurn();
+
   // Check if the game is over, return the winner
-  player gameOver();
+  PlayerID gameOver();
 
   // ===============
   // Accessors

@@ -5,7 +5,7 @@
 #include <vector>
 
 // p1 - top, p2 - bottom
-enum player { none = 0, p1 = 1, p2 = 2 };
+enum PlayerID { none = 0, p1 = 1, p2 = 2 };
 
 class PSBoard {
 public:
@@ -20,11 +20,17 @@ public:
   void resetBoard();
   // Move the ball, adding the edges it creates to the graph and save the move
   // to history
-  void moveBall(node_dir dir);
+  void moveBall(NodeDir dir);
   // Check if the given node is a reachable neighbour of the ball node
   bool ballNeighbour(PSNode *node);
+  // Check if a move in the given direction results in a direct victory for the
+  // player
+  bool moveWins(NodeDir dir, PlayerID p = none);
+  // Check if a move in the given direction results in a direct loss for the
+  // player
+  bool moveLoses(NodeDir dir, PlayerID p = none);
   // Update the turn after a move
-  void nextTurn();
+  void updateTurn();
   // Undo the last move in history
   void undo();
 
@@ -52,22 +58,22 @@ public:
 
   std::vector<PSNode *> getNodes() const;
 
-  void setTurn(const player &value);
-  player getTurn() const;
+  void setTurn(const PlayerID &value);
+  PlayerID getTurn() const;
 
   PSNode *getBall_node() const;
 
-  player getFirst_player() const;
-  void setFirst_player(const player &value);
+  PlayerID getFirst_player() const;
+  void setFirst_player(const PlayerID &value);
 
   bool getAlternate_first() const;
   void setAlternate_first(bool value);
 
 private:
-  player first_player;
-  player turn;
+  PlayerID first_player;
+  PlayerID turn;
   bool alternate_first;
-  std::vector<node_dir> history;
+  std::vector<NodeDir> history;
   std::vector<PSNode *> nodes;
   PSNode *ball_node;
 };

@@ -4,8 +4,8 @@
 #include "point.h"
 #include <unordered_map>
 
-enum node_type { empty, taken, edge };
-enum node_dir {
+enum NodeType { empty, taken, edge };
+enum NodeDir {
   n = 0,
   ne = 1,
   e = 2,
@@ -16,12 +16,10 @@ enum node_dir {
   nw = 7,
   invalid = 8
 };
-const std::unordered_map<Point, node_dir> pointToDir{
-    {{0, -1}, node_dir::n},     {{1, -1}, node_dir::ne},
-    {{1, 0}, node_dir::e},      {{1, 1}, node_dir::se},
-    {{0, 1}, node_dir::s},      {{-1, 1}, node_dir::sw},
-    {{-1, 0}, node_dir::w},     {{-1, -1}, node_dir::nw},
-    {{0, 0}, node_dir::invalid}};
+const std::unordered_map<Point, NodeDir> pointToDir{
+    {{0, -1}, NodeDir::n}, {{1, -1}, NodeDir::ne},  {{1, 0}, NodeDir::e},
+    {{1, 1}, NodeDir::se}, {{0, 1}, NodeDir::s},    {{-1, 1}, NodeDir::sw},
+    {{-1, 0}, NodeDir::w}, {{-1, -1}, NodeDir::nw}, {{0, 0}, NodeDir::invalid}};
 
 class PSNode {
 public:
@@ -30,34 +28,36 @@ public:
 
   void reset();
 
-  // Get neighbours not blocked by an existing edge
-  std::vector<node_dir> getOpenNeighbours();
+  // Get directions not blocked by an existing edge
+  std::vector<NodeDir> getOpenDirections();
   // Get the direction of a neighbouring node (this->neighbour)
-  node_dir neighbourDir(PSNode *n);
+  NodeDir neighbourDir(PSNode *n);
+  // Check if moving to this node ends a move
+  bool endsMove();
 
   // ===============
   // Accessors
   // ===============
 
-  void setNeighbour(PSNode *n, node_dir dir);
-  void removeNeighbour(node_dir dir);
+  void setNeighbour(PSNode *n, NodeDir dir);
+  void removeNeighbour(NodeDir dir);
 
-  void setEdge(node_dir);
-  void removeEdge(node_dir);
+  void setEdge(NodeDir);
+  void removeEdge(NodeDir);
 
   Point getNode_pos() const;
   void setNode_pos(const Point &value);
 
-  node_type getType() const;
-  void setType(const node_type &value);
+  NodeType getType() const;
+  void setType(const NodeType &value);
 
-  PSNode *getNeighbour(node_dir dir) const;
-  bool getEdge(node_dir dir) const;
+  PSNode *getNeighbour(NodeDir dir) const;
+  bool getEdge(NodeDir dir) const;
 
 private:
   Point node_pos;
-  node_type type;
-  PSNode *neighbours[8];
+  NodeType type;
+  PSNode *neighbors[8];
   bool set_edges[8];
 };
 

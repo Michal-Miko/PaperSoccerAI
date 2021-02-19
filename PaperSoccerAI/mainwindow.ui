@@ -323,7 +323,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="screenpreview">
+         <widget class="QLabel" name="screenpreviewlabel">
           <property name="text">
            <string/>
           </property>

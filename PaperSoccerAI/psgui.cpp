@@ -3,7 +3,6 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
 #include <QScreen>
-#include <QtDebug>
 #include <unordered_map>
 
 const int PSGui::separation = 50;
@@ -35,9 +34,13 @@ PSGui::PSGui(QObject *parent, PSGame *game)
 
   // Setup screen capture settings window
   scs_widget = new ScreenCaptureSettings();
+
+  // Connect screen capture settings window
+  connect(scs_widget, SIGNAL(selectionConfirmed(QScreen *, QRect)), this,
+          SLOT(setCaptureArea(QScreen *, QRect)));
 }
 
-void PSGui::gameOver(player winner) {
+void PSGui::gameOver(PlayerID winner) {
   emit gameOverSignal();
 
   if (winner == p1)
@@ -49,16 +52,18 @@ void PSGui::gameOver(player winner) {
 void PSGui::updateUI() {
   auto board_nodes = game->getBoard()->getNodes();
   auto turn = game->getBoard()->getTurn();
-  std::vector<node_dir> move;
+  std::vector<NodeDir> move;
 
   // Update turn information
   if (turn == p1) {
-    move = game->getP1()->getMove();
+    if (game->getP1()->type == PlayerType::player)
+      move = game->getP1()->getMove();
     emit turnSignal("Current turn: P1");
     p1text->setPlainText("P1 <<<");
     p2text->setPlainText("P2");
   } else if (turn == p2) {
-    move = game->getP2()->getMove();
+    if (game->getP2()->type == PlayerType::player)
+      move = game->getP2()->getMove();
     emit turnSignal("Current turn: P2");
     p1text->setPlainText("P1");
     p2text->setPlainText("P2 <<<");
@@ -66,6 +71,10 @@ void PSGui::updateUI() {
 
   // Update edges
   redrawEdges();
+
+  // TODO: Add a checkboks to hide this
+  // Highlight possible mvoe directions
+  highlightDirections();
 
   // Highlight current move
   highlightMove(move);
@@ -84,9 +93,9 @@ void PSGui::updateUI() {
   // Update field textures
   for (unsigned long i = 0; i < board_nodes.size(); i++) {
     auto node = game->getBoard()->getNode(i);
-    if (node->getType() == node_type::empty)
+    if (node->getType() == NodeType::empty)
       fields[i]->setPixmap(QPixmap(":/img/res/empty_field.png"));
-    else if (node->getType() == node_type::taken)
+    else if (node->getType() == NodeType::taken)
       fields[i]->setPixmap(QPixmap(":/img/res/taken_field.png"));
   }
 
@@ -96,11 +105,8 @@ void PSGui::updateUI() {
     gameOver(result);
 }
 
-void PSGui::screenshot() {
-  qDebug() << QGuiApplication::screens();
-  QScreen *pscreen = QGuiApplication::primaryScreen();
-  QPixmap *ss = new QPixmap(pscreen->grabWindow(0));
-  emit screenGrab(*ss);
+void PSGui::setCaptureArea(QScreen *screen, QRect capture_area) {
+  emit screenGrab(*getCapturePreview());
 }
 
 void PSGui::setAlternate(int state) {
@@ -108,7 +114,7 @@ void PSGui::setAlternate(int state) {
 }
 
 void PSGui::setFirstPlayer(int player) {
-  game->getBoard()->setFirst_player(static_cast<enum player>(player + 1));
+  game->getBoard()->setFirst_player(static_cast<PlayerID>(player + 1));
 }
 
 void PSGui::resetGame() {
@@ -120,6 +126,15 @@ void PSGui::resetGame() {
 void PSGui::undo() {
   game->undo();
   updateUI();
+}
+
+QPixmap *PSGui::getCapturePreview() {
+  QScreen *screen = scs_widget->getScreen();
+  QRect area = scs_widget->getCapture_area();
+  // qDebug() << area.x() << area.y() << area.width() << area.height();
+
+  return new QPixmap(
+      screen->grabWindow(0, area.x(), area.y(), area.width(), area.height()));
 }
 
 void PSGui::redrawEdges() {
@@ -136,8 +151,8 @@ void PSGui::redrawEdges() {
     auto node = board_nodes[i];
     QGraphicsPixmapItem *item = fields[i];
     for (int i = 0; i < 8; i++) {
-      auto neighbour = node->getNeighbour(static_cast<node_dir>(i));
-      if (neighbour != nullptr && node->getEdge(static_cast<node_dir>(i))) {
+      auto neighbour = node->getNeighbour(static_cast<NodeDir>(i));
+      if (neighbour != nullptr && node->getEdge(static_cast<NodeDir>(i))) {
         auto neighbour_item_index =
             neighbour->getNode_pos().toIndex(PSBoard::width);
         QGraphicsPixmapItem *neighbour_item = fields[neighbour_item_index];
@@ -166,9 +181,9 @@ void PSGui::setupFields() {
     QGraphicsPixmapItem *current;
 
     // Set field texture
-    if (node->getType() == node_type::taken)
+    if (node->getType() == NodeType::taken)
       current = new QGraphicsPixmapItem(QPixmap(":/img/res/taken_field.png"));
-    else if (node->getType() == node_type::empty)
+    else if (node->getType() == NodeType::empty)
       current = new QGraphicsPixmapItem(QPixmap(":/img/res/empty_field.png"));
     else
       current = new QGraphicsPixmapItem(QPixmap(":/img/res/edge_field2.png"));
@@ -215,15 +230,16 @@ void PSGui::setupBoundaries() {
                     PSBoard::width / 2 + 1, PSBoard::height - 1, pen);
 }
 
-void PSGui::highlightMove(const std::vector<node_dir> &move) {
+void PSGui::highlightMove(const std::vector<NodeDir> &move) {
   QPen pen(QColor(255, 191, 0));
   pen.setWidth(3);
 
   // Loop through the move in reverse to find the current path
-  auto node_current = game->getBoard()->getBall_node();
-  auto node_prev = game->getBoard()->getBall_node();
+  PSNode *node_current = game->getBoard()->getBall_node();
+  PSNode *node_prev;
   for (auto it = move.rbegin(); it != move.rend(); it++) {
-    node_dir dir = static_cast<node_dir>((*it + 4) % 8);
+    NodeDir dir =
+        static_cast<NodeDir>((*it + 4) % 8); // TODO: Should be a function
     node_prev = node_current;
     node_current = node_prev->getNeighbour(dir);
 
@@ -244,6 +260,38 @@ void PSGui::highlightMove(const std::vector<node_dir> &move) {
   ball = ellipseAtField(x, y, 6, 6, pen);
 }
 
+void PSGui::highlightDirections() {
+  // Pen for moves that extend the player's turn
+  QPen pen_ext(QColor(46, 125, 50));
+  pen_ext.setWidth(1);
+  // Pen for moves that end the player's turn
+  QPen pen_end(QColor(100, 100, 100));
+  pen_end.setWidth(1);
+  // Pen for moves that cause the player to lose
+  QPen pen_lose(QColor(198, 40, 40));
+  pen_lose.setWidth(3);
+  // Pen for moves that cause the player to win
+  QPen pen_win(QColor(46, 125, 50));
+  pen_win.setWidth(3);
+
+  auto ball_node = game->getBoard()->getBall_node();
+  for (auto dir : ball_node->getOpenDirections()) {
+    auto neigh = ball_node->getNeighbour(dir);
+    int x1 = ball_node->getNode_pos().x;
+    int y1 = ball_node->getNode_pos().y;
+    int x2 = neigh->getNode_pos().x;
+    int y2 = neigh->getNode_pos().y;
+    if (game->getBoard()->moveWins(dir))
+      edges.push_back(lineBetweenFields(x1, y1, x2, y2, pen_win));
+    else if (game->getBoard()->moveLoses(dir))
+      edges.push_back(lineBetweenFields(x1, y1, x2, y2, pen_lose));
+    else if (neigh->endsMove())
+      edges.push_back(lineBetweenFields(x1, y1, x2, y2, pen_end));
+    else
+      edges.push_back(lineBetweenFields(x1, y1, x2, y2, pen_ext));
+  }
+}
+
 QGraphicsLineItem *PSGui::lineBetweenFields(int x1, int y1, int x2, int y2,
                                             const QPen &pen) {
   return addLine(offset + 8 + x1 * separation, offset + 8 + y1 * separation,
@@ -258,6 +306,44 @@ QGraphicsEllipseItem *PSGui::ellipseAtField(int x, int y, int w, int h,
 }
 
 ScreenCaptureSettings *PSGui::getScs_widget() const { return scs_widget; }
+
+void PSGui::setP1(QString str) {
+  // qDebug() << "SETP1 " << str << '\n';
+  auto type = PNType.at(str);
+  switch (type) {
+  case PlayerType::player:
+    game->setP1(new PSPlayer(game->getBoard()));
+    break;
+  case PlayerType::ai:
+    game->setP1(new PSAIPlayer(game->getBoard()));
+    break;
+  case PlayerType::ai_random:
+    game->setP1(new PSRandomPlayer(game->getBoard()));
+    break;
+  case PlayerType::playok:
+    game->setP1(new PSPlayOKPlayer(game->getBoard()));
+    break;
+  }
+}
+
+void PSGui::setP2(QString str) {
+  // qDebug() << "SETP2 " << str << '\n';
+  auto type = PNType.at(str);
+  switch (type) {
+  case PlayerType::player:
+    game->setP2(new PSPlayer(game->getBoard()));
+    break;
+  case PlayerType::ai:
+    game->setP2(new PSAIPlayer(game->getBoard()));
+    break;
+  case PlayerType::ai_random:
+    game->setP2(new PSRandomPlayer(game->getBoard()));
+    break;
+  case PlayerType::playok:
+    game->setP2(new PSPlayOKPlayer(game->getBoard()));
+    break;
+  }
+}
 
 void PSGui::mousePressEvent(QGraphicsSceneMouseEvent *event) {
   if (event->button() == Qt::LeftButton) {

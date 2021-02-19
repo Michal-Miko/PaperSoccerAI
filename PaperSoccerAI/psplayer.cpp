@@ -1,28 +1,25 @@
 #include "psplayer.h"
 
-const QString PSPlayer::name = "Player";
+PSPlayer::PSPlayer(PSBoard *b)
+    : name("Player"), type(PlayerType::player), board(b), move_complete(false) {
+}
 
-PSPlayer::PSPlayer(PSBoard *b) : board(b), move_complete(false) {}
+PSPlayer::~PSPlayer() {}
 
-bool PSPlayer::playerInput(node_dir dir) {
+bool PSPlayer::playerInput(NodeDir dir) {
   auto ball = board->getBall_node();
   auto dest = ball->getNeighbour(dir);
 
   // A move is complete when player gets stuck, ends on an empty node or ends on
   // a net node
-  if (dest->getType() == node_type::empty ||
-      dest->getOpenNeighbours().size() == 1 ||
-      dest->getNode_pos() == PSBoard::p1_goal ||
-      dest->getNode_pos() == PSBoard::p2_goal)
-    move_complete = true;
-
+  move_complete = dest->endsMove();
   move.push_back(dir);
   board->moveBall(dir);
 
   return move_complete;
 }
 
-std::vector<node_dir> PSPlayer::getMove() {
+std::vector<NodeDir> PSPlayer::getMove() {
   if (move_complete == true) {
     move.clear();
     move_complete = false;
@@ -30,6 +27,9 @@ std::vector<node_dir> PSPlayer::getMove() {
 
   return move;
 }
+
+PSPlayer::PSPlayer(PSBoard *b, QString name, PlayerType type)
+    : name(name), type(type), board(b), move_complete(false) {}
 
 void PSPlayer::undoInput() {
   if (move.size() > 0) {

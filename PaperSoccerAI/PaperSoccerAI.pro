@@ -19,21 +19,27 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     point.cpp \
+    psaiplayer.cpp \
     psboard.cpp \
     psgame.cpp \
     psgui.cpp \
     psnode.cpp \
     psplayer.cpp \
+    psplayokplayer.cpp \
+    psrandomplayer.cpp \
     scsettings.cpp
 
 HEADERS += \
     mainwindow.h \
     point.h \
+    psaiplayer.h \
     psboard.h \
     psgame.h \
     psgui.h \
     psnode.h \
     psplayer.h \
+    psplayokplayer.h \
+    psrandomplayer.h \
     scsettings.h \
     utilities.h
 

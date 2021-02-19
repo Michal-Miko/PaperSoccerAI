@@ -15,7 +15,7 @@ PSBoard::PSBoard()
 
   // Put the ball in the middle
   ball_node = getNode(width / 2, height / 2);
-  ball_node->setType(node_type::taken);
+  ball_node->setType(NodeType::taken);
 }
 
 PSBoard::~PSBoard() {
@@ -33,45 +33,45 @@ void PSBoard::setupNodes() {
 
       // Set board edges
       if (x == 0 || x == width - 1 || y == 0 || y == height - 1)
-        new_node->setType(node_type::edge);
+        new_node->setType(NodeType::edge);
       else if ((y == 1 || y == height - 2) && (x < width / 2 || x > width / 2))
-        new_node->setType(node_type::edge);
+        new_node->setType(NodeType::edge);
     }
   }
   // Set top/bottom net edges
-  getNode(width / 2 - 1, 1)->setType(node_type::edge);
-  getNode(width / 2 + 1, 1)->setType(node_type::edge);
-  getNode(width / 2 - 1, height - 2)->setType(node_type::edge);
-  getNode(width / 2 + 1, height - 2)->setType(node_type::edge);
+  getNode(width / 2 - 1, 1)->setType(NodeType::edge);
+  getNode(width / 2 + 1, 1)->setType(NodeType::edge);
+  getNode(width / 2 - 1, height - 2)->setType(NodeType::edge);
+  getNode(width / 2 + 1, height - 2)->setType(NodeType::edge);
 }
 
 void PSBoard::setupNeighbours() {
   for (unsigned long i = 0; i < nodes.size(); i++) {
     auto node = nodes[i];
     Point pos = node->getNode_pos();
-    if (node->getType() != node_type::edge) {
+    if (node->getType() != NodeType::edge) {
       // Internal nodes
-      node->setNeighbour(getNode(pos.x, pos.y - 1), node_dir::n);
-      node->setNeighbour(getNode(pos.x + 1, pos.y - 1), node_dir::ne);
-      node->setNeighbour(getNode(pos.x + 1, pos.y), node_dir::e);
-      node->setNeighbour(getNode(pos.x + 1, pos.y + 1), node_dir::se);
-      node->setNeighbour(getNode(pos.x, pos.y + 1), node_dir::s);
-      node->setNeighbour(getNode(pos.x - 1, pos.y + 1), node_dir::sw);
-      node->setNeighbour(getNode(pos.x - 1, pos.y), node_dir::w);
-      node->setNeighbour(getNode(pos.x - 1, pos.y - 1), node_dir::nw);
+      node->setNeighbour(getNode(pos.x, pos.y - 1), NodeDir::n);
+      node->setNeighbour(getNode(pos.x + 1, pos.y - 1), NodeDir::ne);
+      node->setNeighbour(getNode(pos.x + 1, pos.y), NodeDir::e);
+      node->setNeighbour(getNode(pos.x + 1, pos.y + 1), NodeDir::se);
+      node->setNeighbour(getNode(pos.x, pos.y + 1), NodeDir::s);
+      node->setNeighbour(getNode(pos.x - 1, pos.y + 1), NodeDir::sw);
+      node->setNeighbour(getNode(pos.x - 1, pos.y), NodeDir::w);
+      node->setNeighbour(getNode(pos.x - 1, pos.y - 1), NodeDir::nw);
     }
   }
   // Corner edges
-  getNode(1, 1)->setNeighbour(getNode(0, 2), node_dir::sw);
-  getNode(1, height - 2)->setNeighbour(getNode(0, height - 3), node_dir::nw);
-  getNode(width - 2, 1)->setNeighbour(getNode(width - 1, 2), node_dir::se);
+  getNode(1, 1)->setNeighbour(getNode(0, 2), NodeDir::sw);
+  getNode(1, height - 2)->setNeighbour(getNode(0, height - 3), NodeDir::nw);
+  getNode(width - 2, 1)->setNeighbour(getNode(width - 1, 2), NodeDir::se);
   getNode(width - 2, height - 2)
-      ->setNeighbour(getNode(width - 1, height - 3), node_dir::ne);
+      ->setNeighbour(getNode(width - 1, height - 3), NodeDir::ne);
   // Net corner edges
-  getNode(3, 1)->setNeighbour(getNode(4, 0), node_dir::ne);
-  getNode(5, 1)->setNeighbour(getNode(4, 0), node_dir::nw);
-  getNode(3, height - 2)->setNeighbour(getNode(4, height - 1), node_dir::se);
-  getNode(5, height - 2)->setNeighbour(getNode(4, height - 1), node_dir::sw);
+  getNode(3, 1)->setNeighbour(getNode(4, 0), NodeDir::ne);
+  getNode(5, 1)->setNeighbour(getNode(4, 0), NodeDir::nw);
+  getNode(3, height - 2)->setNeighbour(getNode(4, height - 1), NodeDir::se);
+  getNode(5, height - 2)->setNeighbour(getNode(4, height - 1), NodeDir::sw);
 }
 
 void PSBoard::resetBoard() {
@@ -90,21 +90,21 @@ void PSBoard::resetBoard() {
 
   // Put the ball in the middle
   ball_node = getNode(width / 2, height / 2);
-  ball_node->setType(node_type::taken);
+  ball_node->setType(NodeType::taken);
 }
 
-void PSBoard::moveBall(node_dir dir) {
+void PSBoard::moveBall(NodeDir dir) {
   ball_node->setEdge(dir);
   ball_node = ball_node->getNeighbour(dir);
-  if (ball_node->getType() == node_type::empty)
-    ball_node->setType(node_type::taken);
+  if (ball_node->getType() == NodeType::empty)
+    ball_node->setType(NodeType::taken);
   history.push_back(dir);
 }
 
 bool PSBoard::ballNeighbour(PSNode *node) {
   for (uint i = 0; i < 8; i++) {
-    auto neighbour = node->getNeighbour(static_cast<node_dir>(i));
-    if (neighbour == ball_node && !node->getEdge(static_cast<node_dir>(i)))
+    auto neighbour = node->getNeighbour(static_cast<NodeDir>(i));
+    if (neighbour == ball_node && !node->getEdge(static_cast<NodeDir>(i)))
       return true;
     else if (neighbour == ball_node)
       return false;
@@ -112,7 +112,49 @@ bool PSBoard::ballNeighbour(PSNode *node) {
   return false;
 }
 
-void PSBoard::nextTurn() {
+bool PSBoard::moveWins(NodeDir dir, PlayerID p) {
+  // Default player
+  if (p == none)
+    p = turn;
+
+  // Enemy gets stuck
+  if (turn != p &&
+      ball_node->getNeighbour(dir)->getOpenDirections().size() == 1)
+    return true;
+
+  // Ball in enemy's net
+  if (p == p1 &&
+      ball_node->getNeighbour(dir)->getNode_pos() == PSBoard::p2_goal)
+    return true;
+  if (p == p2 &&
+      ball_node->getNeighbour(dir)->getNode_pos() == PSBoard::p1_goal)
+    return true;
+
+  return false;
+}
+
+bool PSBoard::moveLoses(NodeDir dir, PlayerID p) {
+  // Default player
+  if (p == none)
+    p = turn;
+
+  // Player gets stuck
+  if (turn == p &&
+      ball_node->getNeighbour(dir)->getOpenDirections().size() == 1)
+    return true;
+
+  // Ball in player's net
+  if (p == p1 &&
+      ball_node->getNeighbour(dir)->getNode_pos() == PSBoard::p1_goal)
+    return true;
+  if (p == p2 &&
+      ball_node->getNeighbour(dir)->getNode_pos() == PSBoard::p2_goal)
+    return true;
+
+  return false;
+}
+
+void PSBoard::updateTurn() {
   if (turn == p1)
     turn = p2;
   else if (turn == p2)
@@ -120,8 +162,8 @@ void PSBoard::nextTurn() {
 }
 
 void PSBoard::undo() {
-  node_dir last_dir = history.back();
-  node_dir reverse_dir = static_cast<node_dir>((last_dir + 4) % 8);
+  NodeDir last_dir = history.back();
+  NodeDir reverse_dir = static_cast<NodeDir>((last_dir + 4) % 8);
   history.pop_back();
 
   auto old_ball_node = ball_node;
@@ -129,16 +171,16 @@ void PSBoard::undo() {
   ball_node->removeEdge(last_dir);
 
   // Change node type if the undo causued it to become disconnected
-  if (old_ball_node->getType() == node_type::taken) {
+  if (old_ball_node->getType() == NodeType::taken) {
     bool disconnected = true;
     for (int i = 0; i < 8; i++) {
-      if (old_ball_node->getEdge(static_cast<node_dir>(i))) {
+      if (old_ball_node->getEdge(static_cast<NodeDir>(i))) {
         disconnected = false;
         break;
       }
     }
     if (disconnected)
-      old_ball_node->setType(node_type::empty);
+      old_ball_node->setType(NodeType::empty);
   }
 }
 
@@ -154,15 +196,15 @@ PSNode *PSBoard::getNode(uint i) { return nodes[i]; }
 
 std::vector<PSNode *> PSBoard::getNodes() const { return nodes; }
 
-void PSBoard::setTurn(const player &value) { turn = value; }
+void PSBoard::setTurn(const PlayerID &value) { turn = value; }
 
-player PSBoard::getTurn() const { return turn; }
+PlayerID PSBoard::getTurn() const { return turn; }
 
 PSNode *PSBoard::getBall_node() const { return ball_node; }
 
-player PSBoard::getFirst_player() const { return first_player; }
+PlayerID PSBoard::getFirst_player() const { return first_player; }
 
-void PSBoard::setFirst_player(const player &value) { first_player = value; }
+void PSBoard::setFirst_player(const PlayerID &value) { first_player = value; }
 
 bool PSBoard::getAlternate_first() const { return alternate_first; }
 
